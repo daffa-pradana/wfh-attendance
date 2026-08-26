@@ -1,0 +1,24 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model ProfileChangeLog {
+  id           String   @id @default(uuid())
+  employeeId   String   @map("employee_id")
+  changedField String   @map("changed_field")
+  oldValue     String?  @map("old_value")
+  newValue     String?  @map("new_value")
+  changedAt    DateTime @default(now()) @map("changed_at") @db.Timestamptz
+
+  @@map("profile_change_logs")
+}
