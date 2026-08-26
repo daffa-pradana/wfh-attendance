@@ -1,0 +1,8 @@
+{
+  "name": "wfh-attendance",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
