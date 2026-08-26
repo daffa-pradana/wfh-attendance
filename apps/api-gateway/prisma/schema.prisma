@@ -11,3 +11,42 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum Role {
+  EMPLOYEE
+  ADMIN
+}
+
+enum AttendanceStatus {
+  MASUK
+  PULANG
+}
+
+model Employee {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  position     String
+  phone        String
+  photoUrl     String?  @map("photo_url")
+  role         Role     @default(EMPLOYEE)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  attendances Attendance[]
+
+  @@map("employees")
+}
+
+model Attendance {
+  id         String           @id @default(uuid())
+  employeeId String           @map("employee_id")
+  employee   Employee         @relation(fields: [employeeId], references: [id])
+  status     AttendanceStatus
+  recordedAt DateTime         @map("recorded_at") @db.Timestamptz
+  createdAt  DateTime         @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([employeeId, recordedAt])
+  @@map("attendances")
+}
