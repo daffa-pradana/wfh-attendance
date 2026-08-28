@@ -41,4 +41,23 @@ export class ProfileService {
     });
     return updatedProfile;
   }
+
+  async updatePhoto(id: string, photoUrl: string) {
+    const updatedProfile = await this.prisma.employee.update({
+      where: { id },
+      data: { photoUrl },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        position: true,
+        phone: true,
+        photoUrl: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    return updatedProfile;
+  }
 }
