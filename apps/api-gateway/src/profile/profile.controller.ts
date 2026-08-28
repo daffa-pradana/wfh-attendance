@@ -18,6 +18,7 @@ import { JwtPayload } from '../auth/types/jwt-payload.interface';
 import { ProfileService } from './profile.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UpdatePhoneDto } from './dto/update-phone.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller('profile')
 export class ProfileController {
@@ -36,6 +37,19 @@ export class ProfileController {
     @Body() updatePhoneDto: UpdatePhoneDto,
   ) {
     return this.profileService.updatePhone(req.user.sub, updatePhoneDto.phone);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('password')
+  changePassword(
+    @Req() req: Request & { user: JwtPayload },
+    @Body() dto: ChangePasswordDto,
+  ) {
+    return this.profileService.changePassword(
+      req.user.sub,
+      dto.currentPassword,
+      dto.newPassword,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
