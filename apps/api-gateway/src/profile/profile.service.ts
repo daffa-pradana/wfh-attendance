@@ -22,4 +22,23 @@ export class ProfileService {
     });
     return profile;
   }
+
+  async updatePhone(id: string, phone: string) {
+    const updatedProfile = await this.prisma.employee.update({
+      where: { id },
+      data: { phone },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        position: true,
+        phone: true,
+        photoUrl: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    return updatedProfile;
+  }
 }
