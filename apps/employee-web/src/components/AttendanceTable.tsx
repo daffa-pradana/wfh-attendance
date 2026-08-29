@@ -28,7 +28,7 @@ export function AttendanceTable({ records }: { records: AttendanceRecord[] }) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[420px] text-left text-sm">
+      <table className="w-full text-left text-sm">
         <thead>
           <tr className="border-b border-gray-200 text-gray-500">
             <th className="py-2 pr-4 font-medium">Masuk</th>
