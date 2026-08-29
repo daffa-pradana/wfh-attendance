@@ -1,10 +1,35 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
+import { ClientProxy } from '@nestjs/microservices';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
+
+interface ProfileUpdatedEvent {
+  employeeId: string;
+  changedField: 'phone' | 'photo' | 'password';
+  oldValue: string | null;
+  newValue: string | null;
+}
 
 @Injectable()
 export class ProfileService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsGateway: NotificationsGateway,
+    @Inject('AUDIT_SERVICE') private readonly auditClient: ClientProxy,
+  ) {}
+
+  private emitProfileUpdated(event: ProfileUpdatedEvent) {
+    this.auditClient.emit('profile.updated', event).subscribe({
+      error: (err: unknown) => {
+        console.error('Failed to publish profile.updated event', err);
+      },
+    });
+    this.notificationsGateway.notifyProfileChanged({
+      employeeId: event.employeeId,
+      changedField: event.changedField,
+    });
+  }
 
   async getProfile(id: string) {
     const profile = await this.prisma.employee.findUnique({
@@ -25,6 +50,11 @@ export class ProfileService {
   }
 
   async updatePhone(id: string, phone: string) {
+    const previous = await this.prisma.employee.findUnique({
+      where: { id },
+      select: { phone: true },
+    });
+
     const updatedProfile = await this.prisma.employee.update({
       where: { id },
       data: { phone },
@@ -40,6 +70,14 @@ export class ProfileService {
         updatedAt: true,
       },
     });
+
+    this.emitProfileUpdated({
+      employeeId: id,
+      changedField: 'phone',
+      oldValue: previous?.phone ?? null,
+      newValue: phone,
+    });
+
     return updatedProfile;
   }
 
@@ -67,7 +105,7 @@ export class ProfileService {
 
     const passwordHash = await bcrypt.hash(newPassword, 10);
 
-    return this.prisma.employee.update({
+    const updatedProfile = await this.prisma.employee.update({
       where: { id },
       data: { passwordHash },
       select: {
@@ -82,9 +120,23 @@ export class ProfileService {
         updatedAt: true,
       },
     });
+
+    this.emitProfileUpdated({
+      employeeId: id,
+      changedField: 'password',
+      oldValue: null,
+      newValue: null,
+    });
+
+    return updatedProfile;
   }
 
   async updatePhoto(id: string, photoUrl: string) {
+    const previous = await this.prisma.employee.findUnique({
+      where: { id },
+      select: { photoUrl: true },
+    });
+
     const updatedProfile = await this.prisma.employee.update({
       where: { id },
       data: { photoUrl },
@@ -100,6 +152,14 @@ export class ProfileService {
         updatedAt: true,
       },
     });
+
+    this.emitProfileUpdated({
+      employeeId: id,
+      changedField: 'photo',
+      oldValue: previous?.photoUrl ?? null,
+      newValue: photoUrl,
+    });
+
     return updatedProfile;
   }
 }
