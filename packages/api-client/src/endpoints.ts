@@ -1,9 +1,13 @@
 import { apiFetch } from './http';
 import type {
+  AdminAttendanceRecord,
   AttendanceRecord,
   AttendanceStatus,
+  AuthMe,
+  CreateEmployeeInput,
   LoginResponse,
   Profile,
+  UpdateEmployeeInput,
 } from './types';
 
 export function login(email: string, password: string): Promise<LoginResponse> {
@@ -11,6 +15,10 @@ export function login(email: string, password: string): Promise<LoginResponse> {
     method: 'POST',
     body: JSON.stringify({ email, password }),
   });
+}
+
+export function me(): Promise<AuthMe> {
+  return apiFetch<AuthMe>('/auth/me');
 }
 
 export function getProfile(): Promise<Profile> {
@@ -63,4 +71,29 @@ export function getAttendanceSummary(
   return apiFetch<AttendanceRecord[]>(
     `/attendance/summary${query ? `?${query}` : ''}`,
   );
+}
+
+export function listEmployees(): Promise<Profile[]> {
+  return apiFetch<Profile[]>('/admin/employees');
+}
+
+export function createEmployee(input: CreateEmployeeInput): Promise<Profile> {
+  return apiFetch<Profile>('/admin/employees', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+export function updateEmployee(
+  id: string,
+  input: UpdateEmployeeInput,
+): Promise<Profile> {
+  return apiFetch<Profile>(`/admin/employees/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  });
+}
+
+export function listAdminAttendance(): Promise<AdminAttendanceRecord[]> {
+  return apiFetch<AdminAttendanceRecord[]>('/admin/attendance');
 }
