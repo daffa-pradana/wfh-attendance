@@ -4,10 +4,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ProfileController } from './profile.controller';
 import { ProfileService } from './profile.service';
 import { AuthModule } from '../auth/auth.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
     AuthModule,
+    NotificationsModule,
     ClientsModule.registerAsync([
       {
         name: 'AUDIT_SERVICE',

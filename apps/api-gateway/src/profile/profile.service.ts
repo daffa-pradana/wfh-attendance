@@ -2,6 +2,7 @@ import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { ClientProxy } from '@nestjs/microservices';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 interface ProfileUpdatedEvent {
   employeeId: string;
@@ -14,6 +15,7 @@ interface ProfileUpdatedEvent {
 export class ProfileService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly notificationsGateway: NotificationsGateway,
     @Inject('AUDIT_SERVICE') private readonly auditClient: ClientProxy,
   ) {}
 
@@ -22,6 +24,10 @@ export class ProfileService {
       error: (err: unknown) => {
         console.error('Failed to publish profile.updated event', err);
       },
+    });
+    this.notificationsGateway.notifyProfileChanged({
+      employeeId: event.employeeId,
+      changedField: event.changedField,
     });
   }
 
