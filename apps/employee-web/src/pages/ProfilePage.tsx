@@ -104,7 +104,7 @@ export function ProfilePage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="grid gap-8 md:grid-cols-2">
       <section className="flex items-center gap-4">
         {profile.photoUrl ? (
           <img
@@ -148,7 +148,7 @@ export function ProfilePage() {
             type="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm sm:w-64"
+            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm sm:max-w-sm"
           />
         </label>
         {phoneError && <p className="text-sm text-red-600">{phoneError}</p>}
@@ -165,7 +165,7 @@ export function ProfilePage() {
           required
           value={currentPassword}
           onChange={(e) => setCurrentPassword(e.target.value)}
-          className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm sm:w-64"
+          className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm sm:max-w-sm"
         />
         <input
           type="password"
@@ -174,7 +174,7 @@ export function ProfilePage() {
           minLength={8}
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
-          className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm sm:w-64"
+          className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm sm:max-w-sm"
         />
         {passwordError && (
           <p className="text-sm text-red-600">{passwordError}</p>
